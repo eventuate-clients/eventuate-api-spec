@@ -1,0 +1,46 @@
+
+allprojects {
+    group = "io.eventuate.apispec"
+}
+
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'org.raml:raml-parser:0.8.14'
+    testCompile "junit:junit:4.12"
+    testCompile "org.everit.json:org.everit.json.schema:1.1.1"
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: deployUrl)
+            pom.project {
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+            }
+        }
+    }
+}
+
+task copySpec(type: Copy) {
+    from "../spec"
+    into "build/resources/main/io/eventuate/apispec"
+}
+
+jar.dependsOn(copySpec)
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.11"
+}

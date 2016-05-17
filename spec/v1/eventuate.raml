@@ -1,0 +1,67 @@
+#%RAML 0.8
+---
+title: Eventuate API
+baseUri: https://api.eventuate.io
+version: v1
+securitySchemes:
+  - basic:
+     type: Basic Authentication
+
+/entity/{space}:
+  post:
+    description: create an entity
+    securedBy: [basic]
+    body:
+      application/json:
+        schema: !include schemas/create-request.json
+    responses:
+      200:
+        body:
+          application/json:
+            schema: !include schemas/create-response.json
+      409:
+        description: an optimistic locking failure or event has already been processed
+        body:
+          application/json:
+            schema: !include schemas/error-response.json
+      503:
+        description: server overloaded try again
+  /{entityType}:
+    /{entityId}:
+        post:
+          description: update an entity
+          securedBy: [basic]
+          body:
+            application/json:
+              schema: !include schemas/update-request.json
+          responses:
+            200:
+              body:
+                application/json:
+                  schema: !include schemas/update-response.json
+            409:
+              description: an optimistic locking failure or event has already been processed
+              body:
+                application/json:
+                  schema: !include schemas/error-response.json
+            503:
+              description: server overloaded try again
+        get:
+          description: get an entity
+          securedBy: [basic]
+          queryParameters:
+            triggeringEventToken:
+              description: the event token from the STOMP event
+              type: string
+          responses:
+            200:
+              body:
+                application/json:
+                  schema: !include schemas/get-response.json
+            409:
+              description: triggeringEvent has already been processed
+              body:
+                application/json:
+                  schema: !include schemas/error-response.json
+            503:
+              description: server overloaded try again

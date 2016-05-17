@@ -1,0 +1,360 @@
+{
+  "basePath": "/",
+  "definitions": {},
+  "host": "api.eventuate.io",
+  "info": {
+    "title": "Eventuate API",
+    "version": "v1"
+  },
+  "paths": {
+    "/entity/{space}": {
+      "post": {
+        "description": "create an entity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "entityTypeName": {
+                  "type": "string"
+                },
+                "events": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "eventData": {
+                        "type": "string"
+                      },
+                      "eventType": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "eventType",
+                      "eventData"
+                    ],
+                    "type": "object"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                }
+              },
+              "required": [
+                "entityTypeName",
+                "events"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "entityId": {
+                  "type": "string"
+                },
+                "entityVersion": {
+                  "type": "string"
+                },
+                "eventIds": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                }
+              },
+              "required": [
+                "entityId",
+                "entityVersion",
+                "eventIds"
+              ],
+              "type": "object"
+            }
+          },
+          "409": {
+            "description": "an optimistic locking failure or event has already been processed",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "error": {
+                  "enum": [
+                    "optimistic_lock_error",
+                    "entity_exists",
+                    "duplicate_event",
+                    "entity_temporarily_unavailable"
+                  ],
+                  "type": "string"
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error",
+                "explanation"
+              ],
+              "type": "object"
+            }
+          },
+          "503": {
+            "description": "server overloaded try again"
+          }
+        }
+      }
+    },
+    "/entity/{space}/{entityType}/{entityId}": {
+      "get": {
+        "description": "get an entity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "entityType",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "entityId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "the event token from the STOMP event",
+            "in": "query",
+            "name": "triggeringEventToken",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "events": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "eventData": {
+                        "type": "string"
+                      },
+                      "eventType": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "eventType",
+                      "eventData"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "snapshot": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "entityVersion": {
+                      "type": "string"
+                    },
+                    "json": {
+                      "type": "string"
+                    },
+                    "snapshotType": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "snapshotType",
+                    "json",
+                    "entityVersion"
+                  ]
+                }
+              },
+              "required": [
+                "events"
+              ],
+              "type": "object"
+            }
+          },
+          "409": {
+            "description": "triggeringEvent has already been processed",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "error": {
+                  "enum": [
+                    "optimistic_lock_error",
+                    "entity_exists",
+                    "duplicate_event",
+                    "entity_temporarily_unavailable"
+                  ],
+                  "type": "string"
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error",
+                "explanation"
+              ],
+              "type": "object"
+            }
+          },
+          "503": {
+            "description": "server overloaded try again"
+          }
+        }
+      },
+      "post": {
+        "description": "update an entity",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "entityType",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "entityId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "entityVersion": {
+                  "type": "string"
+                },
+                "events": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "eventData": {
+                        "type": "string"
+                      },
+                      "eventType": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "eventType",
+                      "eventData"
+                    ],
+                    "type": "object"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "triggeringEventToken": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "events",
+                "entityVersion"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "entityId": {
+                  "type": "string"
+                },
+                "entityVersion": {
+                  "type": "string"
+                },
+                "eventIds": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                }
+              },
+              "required": [
+                "entityId",
+                "entityVersion",
+                "eventIds"
+              ],
+              "type": "object"
+            }
+          },
+          "409": {
+            "description": "an optimistic locking failure or event has already been processed",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "error": {
+                  "enum": [
+                    "optimistic_lock_error",
+                    "entity_exists",
+                    "duplicate_event",
+                    "entity_temporarily_unavailable"
+                  ],
+                  "type": "string"
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error",
+                "explanation"
+              ],
+              "type": "object"
+            }
+          },
+          "503": {
+            "description": "server overloaded try again"
+          }
+        }
+      }
+    }
+  },
+  "schemes": [
+    "https"
+  ],
+  "securityDefinitions": {},
+  "swagger": "2.0"
+}
