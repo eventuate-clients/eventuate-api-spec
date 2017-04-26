@@ -1,6 +1,100 @@
 {
   "basePath": "/",
-  "definitions": {},
+  "definitions": {
+    "MapItem": {
+      "properties": {
+        "entityType": {
+          "type": "string"
+        },
+        "eventTypes": {
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "entityType",
+        "eventTypes"
+      ],
+      "type": "object"
+    },
+
+    "ErrorResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "code",
+        "message"
+      ],
+      "type": "object"
+    },
+
+    "GatewaySpecification": {
+      "additionalProperties": false,
+      "properties": {
+        "subscriberId": {
+          "type": "string"
+        },
+        "entitiesAndEventTypes": {
+          "additionalProperties": {
+            "$ref": "#/definitions/MapItem"
+          },
+          "type": "object"
+        },
+        "gatewayDestination": {
+          "additionalProperties": false,
+          "properties": {
+            "gatewayType": {
+              "type": "string"
+            },
+            "connectionString": {
+              "type": "string"
+            },
+            "credentials": {
+              "additionalProperties": false,
+              "properties": {
+                "accessKey": {
+                  "type": "string"
+                },
+                "secretKey": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "accessKey",
+                "secretKey"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "gatewayType",
+            "connectionString",
+            "credentials"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "subscriberId",
+        "entitiesAndEventTypes",
+        "gatewayDestination"
+      ],
+      "type": "object"
+    }
+  },
+
   "host": "api.eventuate.io",
   "info": {
     "title": "Eventuate API",
@@ -347,6 +441,429 @@
           },
           "503": {
             "description": "server overloaded try again"
+          }
+        }
+      }
+    },
+    "/gateway/{space}": {
+      "post": {
+        "description": "create a gateway",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "x-user-info-jwt",
+            "required": true,
+            "type": "string"},
+          {
+            "in": "body",
+            "name": "gatewaySpecification",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GatewaySpecification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "gatewayId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "gatewayId"
+              ],
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "token verification error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "gateway already exists",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "server internal error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "gateway/{space}/{gatewayId}": {
+      "get": {
+        "description": "get a gateway",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "gatewayId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "x-user-info-jwt",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "subscriberId": {
+                  "type": "string"
+                },
+                "entitiesAndEventTypes": {
+                  "additionalProperties": {
+                    "$ref": "#/definitions/MapItem"
+                  },
+                  "type": "object"
+                },
+                "gatewayDestination": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "gatewayType": {
+                      "type": "string"
+                    },
+                    "connectionString": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "gatewayType",
+                    "connectionString"
+                  ],
+                  "type": "object"
+                },
+                "stateWithErrorMessages": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "errorMessages": {
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "enabled",
+                    "errorMessages"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "subscriberId",
+                "entitiesAndEventTypes",
+                "gatewayDestination",
+                "stateWithErrorMessages"
+              ],
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "token verification error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "no gateway found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "server internal error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "create a gateway with a defined id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "gatewayId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "x-user-info-jwt",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "gatewaySpecification",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GatewaySpecification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "gatewayId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "gatewayId"
+              ],
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "token verification error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "409": {
+            "description": "gateway already exists",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "server internal error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "update a gateway",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "gatewayId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "x-user-info-jwt",
+            "required": true,
+            "type": "string"},
+          {
+            "in": "body",
+            "name": "gatewaySpecification",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GatewaySpecification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "gatewayId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "gatewayId"
+              ],
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "token verification error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "an attempt to update a gateway forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "no gateway found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "server internal error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "delete a gateway",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "gatewayId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "x-user-info-jwt",
+            "required": true,
+            "type": "string"}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "token verification error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "an attempt to delete a gateway forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "no gateway found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "server internal error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "gateway/{space}/{gatewayId}/state": {
+      "post": {
+        "description": "update a gateway state",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "space",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "gatewayId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "x-user-info-jwt",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "additionalProperties": false,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "enabled"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "token verification error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "an attempt to update a gateway state forbidden",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "no gateway found",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "500": {
+            "description": "server internal error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
           }
         }
       }

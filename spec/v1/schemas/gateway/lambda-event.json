@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "https://api.eventuate.io/schemas/v1/gateway/lambda-event.schema",
+  "properties": {
+    "entityId": {
+      "type": "string"
+    },
+    "eventId": {
+      "type": "string"
+    },
+    "eventType": {
+      "type": "string"
+    },
+    "eventData": {
+      "type": "string"
+    },
+    "entityType": {
+      "type": "string"
+    },
+    "space": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required" : ["entityId", "eventId", "eventType", "eventData", "entityType", "space", "userId"]
+}
