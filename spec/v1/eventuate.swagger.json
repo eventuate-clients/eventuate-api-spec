@@ -445,67 +445,6 @@
         }
       }
     },
-    "/gateway/{space}": {
-      "post": {
-        "description": "create a gateway",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "space",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "x-user-info-jwt",
-            "required": true,
-            "type": "string"},
-          {
-            "in": "body",
-            "name": "gatewaySpecification",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/GatewaySpecification"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "additionalProperties": false,
-              "properties": {
-                "gatewayId": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "gatewayId"
-              ],
-              "type": "object"
-            }
-          },
-          "401": {
-            "description": "token verification error",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
-          "409": {
-            "description": "gateway already exists",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
-          "500": {
-            "description": "server internal error",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          }
-        }
-      }
-    },
     "gateway/{space}/{gatewayId}": {
       "get": {
         "description": "get a gateway",
@@ -519,12 +458,6 @@
           {
             "in": "path",
             "name": "gatewayId",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "x-user-info-jwt",
             "required": true,
             "type": "string"
           }
@@ -609,7 +542,7 @@
         }
       },
       "post": {
-        "description": "create a gateway with a defined id",
+        "description": "create a gateway",
         "parameters": [
           {
             "in": "path",
@@ -620,13 +553,7 @@
           {
             "in": "path",
             "name": "gatewayId",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "x-user-info-jwt",
-            "required": true,
+            "required": false,
             "type": "string"
           },
           {
@@ -689,11 +616,6 @@
             "required": true,
             "type": "string"
           },
-          {
-            "in": "header",
-            "name": "x-user-info-jwt",
-            "required": true,
-            "type": "string"},
           {
             "in": "body",
             "name": "gatewaySpecification",
@@ -759,12 +681,7 @@
             "name": "gatewayId",
             "required": true,
             "type": "string"
-          },
-          {
-            "in": "header",
-            "name": "x-user-info-jwt",
-            "required": true,
-            "type": "string"}
+          }
         ],
         "responses": {
           "200": {
@@ -814,12 +731,6 @@
             "type": "string"
           },
           {
-            "in": "header",
-            "name": "x-user-info-jwt",
-            "required": true,
-            "type": "string"
-          },
-          {
             "in": "body",
             "name": "body",
             "required": true,
@@ -843,12 +754,6 @@
           },
           "401": {
             "description": "token verification error",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
-          "403": {
-            "description": "an attempt to update a gateway state forbidden",
             "schema": {
               "$ref": "#/definitions/ErrorResponse"
             }
